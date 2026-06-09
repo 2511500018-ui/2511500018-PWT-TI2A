@@ -2,77 +2,172 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0 text-dark">Data Informasi Jadwal</h1>
+                <h1 class="m-0 text-dark">Data Jadwal </h1>
             </div>
         </div>
     </div>
 </div>
 
 <?php
-$carikode = mysqli_query($koneksi,"select max(kd_jadwal) from jadwal") or die(mysqli_error());
+$carikode = mysqli_query($koneksi,"select max(kd_jadwal) from jadwal") or die(mysqli_error($koneksi));
 $datakode = mysqli_fetch_array($carikode);
 
-if($datakode[0]){
+ if($datakode && $datakode[0] !== null) {
     $kode = (int)$datakode[0] + 1;
-    $kode = $kode + 1;
+    $hasilkode = "J-" . str_pad($kode, 3, "0", STR_PAD_LEFT);
 } else {
-    $hasilkode = "1";
+    $hasilkode = "J-001";
 }
-$_SESSION['KODE'] = $hasilkode;
+
 if(isset($_POST['tambah'])){
-    $kd_jadwal = $_POST['kd_jadwal'];
-    $id_kelas = $_POST['id_kelas'];
-    $Thn_ajaran = $_POST['Thn_ajaran'];
-    $Semester = $_POST['Semester'];
-    $insert = mysqli_query($koneksi,"INSERT INTO jadwal values ('$kd_jadwal','$id_kelas','$Thn_ajaran','$Semester')");
-    if ($insert) {
+    $kd_jadwal_text = $_POST['kd_jadwal'];
+    $kd_jadwal = (int) substr($kd_jadwal_text, 2);
+    $kd_guru_text = $_POST['kd_guru'];
+    $kd_guru = (int) substr($kd_guru_text, 2);
+    $thn_ajaran = $_POST['thn_ajaran'];
+    $semester = $_POST['semester'];
+    $kd_mapel = $_POST['kd_mapel'];
+    $hari = $_POST['hari'];
+    $jam = $_POST['jam'];
+    $kelas = $_POST['kelas'];
+
+    // Insert ke tabel jadwal
+    $insertjadwal = mysqli_query($koneksi,"INSERT INTO jadwal values ('$kd_jadwal','$kd_guru', '$thn_ajaran', '$semester')");
+
+    if (!$insertjadwal) {
+    echo "Gagal insert ke tabel jadwal: " . mysqli_error($koneksi);
+        die;
+    }
+
+    
+    $allSucces = true;
+   for ($i = 0; $i < count($kd_mapel); $i++) { 
+
+    $kd_mapel_int = (int) substr($kd_mapel[$i], 2);
+
+    $insert = mysqli_query($koneksi,"INSERT INTO tabel_jadwal(kd_jadwal, kd_mapel, kd_guru, hari, jam, kelas)
+    values ('$kd_jadwal', '$kd_mapel_int', '$kd_guru', '{$hari[$i]}', '{$jam[$i]}', '{$kelas[$i]}')");
+
+    if(!$insert) {
+        $allSucces = false;
+        echo "Gagal insert detail ke-{$i}: " . mysqli_error($koneksi);
+    }
+}
+
+    if ($allSucces) {
         echo '<div class="alert alert-info-dismissible">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button>
         <h5><i class="icon fas fa-info"></i> Info </h5>
         <h4>Berhasil Disimpan</h4></div>';
         echo '<meta http-equiv="refresh" content="1;url=index.php?page=jadwal">';
-    } else { 
+    } else {
         echo '<div class="alert alert-warning alert-dismissible">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button>
         <h5><i class="icon fas fa-info"></i> Info </h5>
-        <h4>Gagal Disimpan</h4></div>';
+        <h4>Gagal menyimpan sebagian atau seluruh data detail'.mysqli_error($koneksi).'</h4></div>';
     }
 }
+
 ?>
-<section class="content">
-    <div class="container-fluid">
-        <div class="card">
-            <div class="card-body">
-                <div class="card-body p-2">
-                    <form method="POST" action="">
-                        
-                        <div class="form-group">
-                            <label for="kd_siswa">Kode Jadwal</label>
-                            <input type="text" name="kd_jadwal" value="<?= $hasilkode; ?>" placeholder="Id Kat" class="form-control" readonly>
-                        </div>
+<div class="content">
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-body">
 
-                        <div class="form-group">
-                            <label for="nm_siswa">Id Kelas</label>
-                            <input type="text" name="id_kelas" id="id_kelas" placeholder="id_kelas" class="form-control">
-                        </div>
+        <h3>Tambah Jadwal</h3>
+        <form method="POST" action="">
+          <div class="form-group">
+            <label>Kode Jadwal</label>
+            <input type="text" name="kd_jadwal" value="<?= $hasilkode ?>" class="form-control" readonly>
+          </div>
+          
+          <div class="form-group">
+            <label>Guru</label>
+            <select name="kd_guru" class="form-control">
+              <?php
+              $guru = mysqli_query($koneksi, "SELECT * FROM guru");
+              while ($g = mysqli_fetch_assoc($guru)) {
+                echo "<option value='{$g['kd_guru']}'>{$g['nm_guru']}</option>";
+              }
+              ?>
+                </select>
+            </div>
 
-                        <div class="form-group">
-                            <label for="Thn_ajaran">Tahun Ajaran</label>
-                            <input type="text" name="Thn_ajaran" id="Thn_ajaran" placeholder="Tahun Ajaran" class="form-control">
-                        </div>
+            <div class="form-group">
+            <label>semester</label>
+            <select name="semester" class="form-control" required>
+                <option selected disabled>--Pilih semester--</option>
+                <option>Ganjil</option>
+                <option>Genap</option>
+            </select>
+            </div>
 
-                        <div class="form-group">
-                            <label for="Semester">Semester</label>
-                            <input type="text" name="Semester" id="Semester" placeholder="Semester" class="form-control">
-                        </div>
+            <div class="form-group">
+            <label>Tahun Ajaran</label>
+            <select name="thn_ajaran" class="form-control" required>
+                <option selected disabled>--Pilih Tahun Ajaran--</option>
+                <option>2024-2025</option>
+                <option>2025-2026</option>
+            </select>
+            </div>
 
-                        <div class="card-footer">
-                            <input type="submit" class="btn btn-primary" name="tambah" value="Simpan">
-                        </div>
+            <hr>
+            <h5>Detail Jadwal</h5>
+            <div id="detail-jadwal">
+            <div class="row mb-2">
+                <div class="col-md-3">
+                <select name="kd_mapel[]" class="form-control" required>
+                    <option selected disabled>--Pilih Mapel--</option>
+                    <?php
+                    $mapel = mysqli_query($koneksi, "SELECT * FROM mapel");
+                    while ($m = mysqli_fetch_assoc($mapel)) {
+                    echo "<option value='{$m['kd_mapel']}'>{$m['nm_mapel']}</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+            <div class="col-md-3">
+            <select name="hari[]" class="form-control" required>
+                <option disabled selected >--Pilih Hari--</option>
+                <option>Senin</option>
+                <option>Selasa</option>
+                <option>Rabu</option>
+                <option>Kamis</option>
+                <option>Jumat</option>
+                <option>Sabtu</option>
+            </select>
+            </div>
 
-                    </form>
-                </div>
+            <div class="col-md-3">
+            <select name="jam[]" class="form-control" required>
+                <option value="" disabled selected>--Pilih Jam--</option>
+                <option value="08:00-10:00">08.00 - 10.00</option>
+                <option value="08:00-09:30">08.00 - 09.30</option>
+                <option value="10:30-12:00">10.30 - 12.00</option>
+                <option value="12:30-14:00">12.30 - 14.00</option>
+            </select>
+        </div>
+
+            <div class="col-md-3">
+            <input type="text" name="kelas[]" class="form-control" placeholder="Kelas" required>
             </div>
         </div>
-    </div>
-</section>
+        </div>
+        <button type="button" class="btn btn-info" onclick="tambahBaris()">+ Tambah Mapel</button>
+        <br><br>
+        <input type="submit" class="btn btn-primary" name="tambah" value="simpan">
+        </form>
+
+        <script>
+        function tambahBaris() {
+        let container = document.getElementById('detail-jadwal');
+        let row = container.firstElementChild.cloneNode(true);
+        row.querySelectorAll('input').forEach(input => input.value = '');
+        container.appendChild(row);
+        }
+        </script>
+
+            </div>
+            </div>
+        </div>
+        </div>

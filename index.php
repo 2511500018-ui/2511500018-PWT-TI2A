@@ -156,12 +156,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </a>
             </li>
 
+
             <li class="nav-item">
-            <a href="index.php?page=jadwal" class="nav-link">
-            <i class="nav-icon fas fa-calendar"></i>
-            <p>Jadwal</p>
-            </a>
-            </li>
+              <a href="index.php?page=ekstra_2511500018" class="nav-link">
+              <i class="nav-icon fas fa-class"></i>
+              <p>Ekstrakulikuler</p>
+              </a>
+              </li>
 
             <?php } ?>
             
@@ -222,7 +223,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </a>
 
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="index.php?page=jadwal" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Jadwal</p>
                 </a>
