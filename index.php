@@ -143,7 +143,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
               <li class="nav-item">
               <a href="index.php?page=kelas" class="nav-link">
-              <i class="nav-icon fas fa-class"></i>
+              <i class="nav-icon fas fa-book"></i>
               <p>Kelas</p>
               </a>
               </li>
@@ -159,7 +159,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
             <li class="nav-item">
               <a href="index.php?page=ekstra_2511500018" class="nav-link">
-              <i class="nav-icon fas fa-class"></i>
+              <i class="nav-icon fas fa-users"></i>
               <p>Ekstrakulikuler</p>
               </a>
               </li>

@@ -152,8 +152,6 @@ if(isset($_POST['tambah'])){
             <input type="text" name="kelas[]" class="form-control" placeholder="Kelas" required>
             </div>
         </div>
-        </div>
-        <button type="button" class="btn btn-info" onclick="tambahBaris()">+ Tambah Mapel</button>
         <br><br>
         <input type="submit" class="btn btn-primary" name="tambah" value="simpan">
         </form>
